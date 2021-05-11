@@ -15,7 +15,7 @@ class USBCam:
       yield frame
 
   def run(self, callback):
-    self.cap = cv2.VideoCapture(0) # 0번 카메라
+    self.cap = cv2.VideoCapture(1) # 0번 카메라
     self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.size[0])
     self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.size[1])
     while True:
