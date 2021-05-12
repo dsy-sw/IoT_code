@@ -1,4 +1,4 @@
-from os import stat
+from time import sleep
 import cv2
 class Video:
   def __init__(self, **kargs):

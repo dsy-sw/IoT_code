@@ -2,7 +2,7 @@ from video import Video
 from time import sleep
 import socket, json, net
 
-HOST = '218.38.254.30'
+HOST = '127.0.0.1'
 PORT = 5000
 
 if __name__ == '__main__':
@@ -10,7 +10,7 @@ if __name__ == '__main__':
     s.connect((HOST, PORT))
     writer = s.makefile('wb')
     reader = s.makefile('rb')
-    with Video(device=0) as v:
+    with Video(device=1) as v:
       for image in v:
         image = Video.to_jpg(image,80)
         print('video send ', len(image))

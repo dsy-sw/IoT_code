@@ -1,56 +1,33 @@
 #include <MqttCom.h>
-#include <Servo.h>
+#include <Sensor.h>
 
-
-// const char *ssid = "TECH2_2G";
-// const char *password = "tech21234!";
-// const char *server =  "172.30.1.107";
-const char *ssid = "DO";
-const char *password = "ehtldud123";
-const char *server =  "192.168.0.10";
-const char *sub_topic = "iot/gate/request";
+const char *ssid = "TECH2_2G";
+const char *password = "tech21234!";
+const char *server =  "172.30.1.3";
+// const char *ssid = "DO";
+// const char *password = "ehtldud123";
+// const char *server =  "192.168.0.10";
+const char *pub_topic = "door/msg";
 
 MqttCom com(ssid, password);
-Servo servo;
+Sensor sensor(D6);
 
-void publish() {
+void publishWorking() {
   com.publish("door/work", "working on");
 }
 
-// void subscribe(char* topic, uint8_t* payload, unsigned int length) {
-//   char buf[128];
-//   memcpy(buf, payload, length);
-//   buf[length] = '\0';
-//   String ms = String(char* buf);
-//   String ms = buf;
-  
-//   Serial.print(topic);
-//   Serial.println(buf);
-
-//   if(ms == "open"){
-//     servo_control();
-//   }
-// }
-
-void servo_control(){
-  servo.write(90);
-  com.publish("iot/gate/control","open");
-  Serial.println("open");
-  delay(3000);
-  servo.write(0);
-  com.publish("iot/gate/control","close");
-  Serial.println("close");
+void publish_sensor(){
+  com.publish(pub_topic, "door_open");
 }
 
-void setup()
-{
+void setup(){
   Serial.begin(115200);
-  servo.attach(D6);
-  com.init(server, sub_topic, subscribe);   // subscribe하는 경우
-  com.setInterval(30000, publish);
+  com.init(server);                         // publish만 실행
+  com.setInterval(30000, publishWorking);   // 센서 작동 중인지 확인
+  sensor.setCallback(publish_sensor);       // 센서 감지 시 콜백
 }
 
-void loop()
-{
+void loop(){
   com.run();
+  sensor.check();
 }
