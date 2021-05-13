@@ -25,7 +25,10 @@ class Video:
   def __exit__(self, type, value, trace_back):
     if self.cap and self.cap.isOpened():
       print('video release------')
-      self.cap.release()
+      try:
+        self.cap.release()
+      except Exception as e:
+        print(e)
 
   @staticmethod
   def to_jpg(frame, quality=80):
