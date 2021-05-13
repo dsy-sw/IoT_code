@@ -15,7 +15,7 @@ def receiver(client, addr):
     print('no data')
   print('received', data_len)   # 이미지 처리
   # save_image(data)
-  show_image(data)
+  save_image(data)
   result = json.dumps({'result':'ok'})
   net.send(writer, result.encode())
 

@@ -1,12 +1,12 @@
 #include <MqttCom.h>
 #include <Sensor.h>
 
-const char *ssid = "TECH2_2G";
-const char *password = "tech21234!";
-const char *server =  "172.30.1.3";
-// const char *ssid = "DO";
-// const char *password = "ehtldud123";
-// const char *server =  "192.168.0.10";
+// const char *ssid = "TECH2_2G";
+// const char *password = "tech21234!";
+// const char *server =  "172.30.1.3";
+const char *ssid = "DO";
+const char *password = "ehtldud123";
+const char *server =  "192.168.0.10";
 const char *pub_topic = "door/msg";
 
 MqttCom com(ssid, password);
@@ -16,8 +16,8 @@ void publishWorking() {
   com.publish("door/work", "working on");
 }
 
-void publish_sensor(){
-  com.publish(pub_topic, "door_open");
+ICACHE_RAM_ATTR void publish_sensor(){
+  com.publish(pub_topic, "close");
 }
 
 void setup(){
@@ -29,5 +29,5 @@ void setup(){
 
 void loop(){
   com.run();
-  sensor.check();
+  sensor.attachInterrupt(publish_sensor, RISING);
 }
