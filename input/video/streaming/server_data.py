@@ -15,10 +15,9 @@ def receiver(client, addr):
     if not data:
       print('no data')
     print('received', data_len)   # 이미지 처리
-    # save_image(data)
-    save_image(data)
     result = json.dumps({'result':'ok'})
     net.send(writer, result.encode())
+    return data
   except Exception as e:
     print(e)
 

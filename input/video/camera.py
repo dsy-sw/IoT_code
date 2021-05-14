@@ -7,7 +7,7 @@ import net
 import time
 import cv2
 
-HOST = '192.168.0.10'
+HOST = '172.30.1.36'
 PORT = 5000
 
 face_xml = path.join(haarcascades, 'haarcascade_frontalface_default.xml')
@@ -48,11 +48,11 @@ if __name__ == '__main__':
     writer = s.makefile('wb')
     reader = s.makefile('rb')
     with Video(device = 0) as v:    # 카메라 번호 지정
+    # with Video(file = 'test_people.jpg') as v:    # 카메라 번호 지정
       middle_time = time.time()
       check = middle_time - start_time    # 사전 작업시간
-    # with Video(file = 'test_people.jpg') as v:    # 카메라 번호 지정
       num_detections, image_data = 0, []
-      for i in range(18):
+      for i in range(5):
         v.cap.read()
       for image in v:
         Video.show(image)                       # 영상 스트리밍
