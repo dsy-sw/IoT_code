@@ -1,4 +1,3 @@
-from os import truncate
 import socket
 import struct
 from _thread import *
