@@ -3,8 +3,8 @@ import json
 import numpy as np
 import cv2
 
-HOST = '192.168.0.10'
-PORT = 5000
+HOST = '15.161.17.179'
+PORT = 22
 ix = 0
 
 def receiver(client, addr):
@@ -20,7 +20,7 @@ def receiver(client, addr):
     result = json.dumps({'result':'ok'})
     net.send(writer, result.encode())
   except Exception as e:
-    print(e)
+    print('Error :', e)
 
   print('exit receiver')
 
@@ -35,7 +35,7 @@ def save_image(img):
   global ix
   data = np.frombuffer(img, dtype=np.uint8)
   image=cv2.imdecode(data, cv2.IMREAD_COLOR)
-  cv2.imwrite(f'C:\iot_workspace\project\IoT_code\input\\video\save_img/face_{ix:04d}.jpg', image, [cv2.IMWRITE_JPEG_QUALITY, 90])
+  cv2.imwrite(f'/home/ubuntu/iot/save_img/face_{ix:04d}.jpg', image, [cv2.IMWRITE_JPEG_QUALITY, 90])
   ix += 1
 
 if __name__ == '__main__':

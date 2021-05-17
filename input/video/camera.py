@@ -11,6 +11,7 @@ import paho.mqtt.client as mqtt
 
 HOST = '192.168.0.10'
 PORT = 5000
+door_topic='door/#'
 
 client = mqtt.Client()
 
@@ -29,6 +30,7 @@ def detect_face(frame):
       num_detections = faces
       return num_detections
 
+
 def show_image(data):
   cv2.imshow('frame', data)
   cv2.waitKey(0.5)
@@ -39,16 +41,10 @@ def server_msg(reader):
     if len(request) > 0:
         print(json.loads(request.decode()))       # 전송 결과
 
-def vclient(ip, port, thread):
-    try:
-      while True:
-        start_new_thread(thread, (ip, port))      # 스레드 기동
-    except Exception as e:
-      print(e)
-
 def camera(ip, port):
   start_time = time.time()    # 시작 시간
   need_second = 2
+  print(ip, port)
   with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((ip, port))
 
@@ -85,6 +81,7 @@ def camera(ip, port):
     print('사전 작업시간 :', check)
     print('전체 시간 : ', end_time - start_time)
 
-if __name__ == '__main__':
-  print('start client...')
-  # client(HOST,PORT,camera)
+# if __name__ == '__main__':
+#   print('start client...')
+#   # start_new_thread(subscribe, (HOST, door_topic))
+#   vclient(HOST, PORT, camera)
