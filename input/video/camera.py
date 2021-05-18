@@ -9,7 +9,7 @@ import cv2
 from _thread import *
 import paho.mqtt.client as mqtt
 
-HOST = '192.168.0.10'
+HOST = '172.30.1.36'
 PORT = 5000
 door_topic='door/#'
 
@@ -51,11 +51,11 @@ def camera(ip, port):
     writer = s.makefile('wb')
     reader = s.makefile('rb')
     with Video(device = 0) as v:    # 카메라 번호 지정
+    # with Video(file = 'test_people.jpg') as v:    # 카메라 번호 지정
       middle_time = time.time()
       check = middle_time - start_time    # 사전 작업시간
-    # with Video(file = 'test_people.jpg') as v:    # 카메라 번호 지정
       num_detections, image_data = 0, []
-      for i in range(18):
+      for i in range(5):
         v.cap.read()
       for image in v:
         Video.show(image)                       # 영상 스트리밍
@@ -77,6 +77,7 @@ def camera(ip, port):
         print('video send ', len(image_data), '/', 'people :', num_detections)
         server_msg(reader)
 
+<<<<<<< HEAD
     end_time = time.time()    # 끝나는 시간
     print('사전 작업시간 :', check)
     print('전체 시간 : ', end_time - start_time)
@@ -85,3 +86,8 @@ def camera(ip, port):
 #   print('start client...')
 #   # start_new_thread(subscribe, (HOST, door_topic))
 #   vclient(HOST, PORT, camera)
+=======
+  end_time = time.time()    # 끝나는 시간
+  print('사전 작업시간 :', check)
+  print('전체 시간 : ', end_time - start_time)
+>>>>>>> a0d11e41a0b7d5d380bd6de59e31b8633c4942f5
