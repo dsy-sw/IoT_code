@@ -7,13 +7,13 @@
 const char *ssid = "DO";
 const char *password = "ehtldud123";
 const char *server =  "192.168.0.10";
-const char *pub_topic = "door/msg";
+const char *pub_topic = "input/door/switch";
 
 MqttCom com(ssid, password);
 Sensor sensor(D6);
 
 void publishWorking() {
-  com.publish("door/work", "working on");
+  com.publish("input/door/work", "working on");
 }
 
 ICACHE_RAM_ATTR void publish_sensor(){
@@ -23,7 +23,7 @@ ICACHE_RAM_ATTR void publish_sensor(){
 void setup(){
   Serial.begin(115200);
   com.init(server);                         // publish만 실행
-  com.setInterval(30000, publishWorking);   // 센서 작동 중인지 확인
+  com.setInterval(30000, publishWorking);   // 센서 작동 확인
   sensor.setCallback(publish_sensor);       // 센서 감지 시 콜백
 }
 

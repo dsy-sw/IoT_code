@@ -1,8 +1,8 @@
 import paho.mqtt.client as mqtt 
 import camera
 
-SERVER_HOST = '192.168.0.10'
-BROKER_HOST = '218.38.254.30'
+SERVER_HOST = '15.161.17.179'
+BROKER_HOST = '172.30.1.14'
 PORT = 5000
 door_topic='door/#'
 
@@ -17,9 +17,7 @@ def on_connect(client, userdata, flags, rc):
 
 # 관련 토픽 메세지 수신 콜백 함수
 def on_message(client, userdata, msg):
-    print('111111111111')
     print(msg.topic+" "+str(msg.payload))
-    print('2222222222222')
 
     if msg.payload == b'on':
         camera.camera(SERVER_HOST, PORT)
@@ -42,4 +40,6 @@ if __name__ == '__main__':
 
     except Exception as err:
         print('에러 : %s' % err)
+    except KeyboardInterrupt:
+        print('수동 종료')
 

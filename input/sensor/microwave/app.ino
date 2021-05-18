@@ -1,54 +1,37 @@
 #include <MqttCom.h>
-#include <Servo.h>
+#include <Sensor.h>
 
 
 const char *ssid = "TECH2_2G";
 const char *password = "tech21234!";
-const char *server =  "172.30.1.107";
-const char *sub_topic = "iot/gate/request";
+const char *server =  "172.30.1.14";
+// const char *ssid = "TECH2_2G";
+// const char *password = "tech21234!";
+// const char *server =  "172.30.1.107";
+const char *pub_topic = "input/lift/wave";
 
 MqttCom com(ssid, password);
-Servo servo;
+Sensor sensor(D6);
 
-void publish() {
-  com.publish("iot/gate/work", "working on");
+void publishWorking() {
+  com.publish("input/lift/work", "working on");
 }
 
-void subscribe(char* topic, uint8_t* payload, unsigned int length) {
-  char buf[128];
-  memcpy(buf, payload, length);
-  buf[length] = '\0';
-  // String ms = String(char* buf);
-  String ms = buf;
-  
-  Serial.print(topic);
-  Serial.println(buf);
-
-  if(ms == "open"){
-    servo_control();
-  }
-
+ICACHE_RAM_ATTR void publish_sensor(){
+  com.publish(pub_topic, "close");
 }
 
-void servo_control(){
-  servo.write(90);
-  com.publish("iot/gate/control","open");
-  Serial.println("open");
-  delay(3000);
-  servo.write(0);
-  com.publish("iot/gate/control","close");
-  Serial.println("close");
-}
 
 void setup()
 {
   Serial.begin(115200);
-  servo.attach(D6);
-  com.init(server, sub_topic, subscribe);   // subscribe하는 경우
-  com.setInterval(60000, publish);
+  com.init(server);                         // publish만 실행
+  com.setInterval(30000, publishWorking);   // 센서 작동 확인
+  sensor.setCallback(publish_sensor);       // 센서 감지 시 콜백
 }
 
 void loop()
 {
   com.run();
+  sensor.attachInterrupt(publish_sensor, RISING);
 }
