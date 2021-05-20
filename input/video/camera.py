@@ -45,9 +45,10 @@ def camera(ip, port):
   start_time = time.time()    # 시작 시간
   need_second = 2
   print(ip, port)
+  dataset = []
+  location = '도곡동-1'
   with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((ip, port))
-
     writer = s.makefile('wb')
     reader = s.makefile('rb')
     with Video(device = 0) as v:    # 카메라 번호 지정
@@ -73,6 +74,7 @@ def camera(ip, port):
       if len(image_data) == 0:                    # 이미지가 없으면
         print('no data')
       else:
+        dataset.append(image_data, location)
         print("Number of faces detected: ", num_detections)
         net.send(writer, image_data)            # 서버로 데이터 전송
         print('video send ', len(image_data), '/', 'people :', num_detections)
