@@ -3,7 +3,7 @@ import json
 import numpy as np
 import cv2
 
-HOST = '172.30.1.36'
+HOST = '172.30.1.55'
 PORT = 5000
 ix = 0
 

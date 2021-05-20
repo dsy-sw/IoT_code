@@ -1,10 +1,11 @@
 import paho.mqtt.client as mqtt 
 import camera
 
-SERVER_HOST = '15.161.17.179'
-BROKER_HOST = '172.30.1.14'
+# SERVER_HOST = '15.161.17.179'
+SERVER_HOST = '172.30.1.55'
+BROKER_HOST = '172.30.1.55'
 PORT = 5000
-door_topic='door/#'
+door_topic='input/#'
 
 # 브로커 접속 시도 결과 처리 콜백 함수
 def on_connect(client, userdata, flags, rc):

@@ -69,6 +69,7 @@ def camera(ip, port):
         if num_detection > num_detections:
           num_detections = num_detection        # 최대로 인원 수 갱신
           image_data = Video.to_jpg(image)   # jpg파일 압축
+          print(type(image_data))
       if len(image_data) == 0:                    # 이미지가 없으면
         print('no data')
       else:
