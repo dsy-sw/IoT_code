@@ -2,8 +2,8 @@ import paho.mqtt.client as mqtt
 import camera
 
 # SERVER_HOST = '15.161.17.179'
-SERVER_HOST = '172.30.1.55'
-BROKER_HOST = '172.30.1.55'
+SERVER_HOST = '218.38.254.30'
+BROKER_HOST = '218.38.254.30'
 PORT = 5000
 door_topic='input/#'
 

@@ -1,5 +1,7 @@
-from time import sleep
-import cv2
+import cv2, webbrowser
+import numpy as np
+import urllib.request
+
 class Video:
   def __init__(self, **kargs):
       device = kargs.get('device', -1)
@@ -25,10 +27,7 @@ class Video:
   def __exit__(self, type, value, trace_back):
     if self.cap and self.cap.isOpened():
       print('video release------')
-      try:
-        self.cap.release()
-      except Exception as e:
-        print(e)
+      self.cap.release()
 
   @staticmethod
   def to_jpg(frame, quality=80):
@@ -54,9 +53,37 @@ class Video:
   def resize_frame(frame, width, height):
     dim = (width, height)
     return cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
+    
+  @staticmethod
+  def connect_url(url,filename):
+    # Windows
+    # chrome_path = 'C:/Program Files/Google/Chrome/Application/chrome.exe %s'
+    # Linux
+    # chrome_path = '/usr/bin/google-chrome %s'
+    directory = f'C:/iot_workspace/project/IoT_code/input/video/ad_video/{filename}.mp4'
+    print('-------------------------urls')
+    urllib.request.urlretrieve(url, directory)
+    print(' 광고 저장 완료 ')
+    # webbrowser.get(chrome_path).open(url, new=1, autoraise=False)
+    return True
+  
+  @staticmethod
+  def video_play(filename):
+    cap = cv2.VideoCapture(filename)
+    while cap.isOpened():
+      ret, frame = cap.read()
+      if not ret:
+        print("Don't find ad_file")
+        break
+      cv2.imshow('Ecoche', frame)
+      if cv2.waitKey(42) == ord('q'):
+        break
+    
+    cap.release()
+    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-  v = Video(device=1)
+  v = Video(device=0)
   for image in v:
     image = Video.resize_frame(image, 320, 240)
     # image = Video.resize_frame(image, 60)
