@@ -14,7 +14,8 @@ def server(ip, port, thread):
         start_new_thread(thread, (client_socket, addr))
     except Exception as e:
       print(e)
-
+    except KeyboardInterrupt:
+        print('수동 종료')
 def send(writer, data):
   writer.write(struct.pack('<L', len(data)))
   writer.write(data)

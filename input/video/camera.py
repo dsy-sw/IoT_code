@@ -9,12 +9,14 @@ import cv2
 from _thread import *
 import paho.mqtt.client as mqtt
 
-HOST = '15.161.17.179'
-PORT = 5000
-door_topic='door/#'
+CLIENT_HOST = '15.161.17.179'
+# HOST = '15.161.17.179'
+# PORT = 5000
+door_topic='input/#'
+
+state = False
 
 client = mqtt.Client()
-
 
 def detect_face(frame):
   face_xml = path.join(haarcascades, 'haarcascade_frontalface_default.xml')
@@ -36,29 +38,41 @@ def show_image(data):
   cv2.waitKey(0.5)
 
 
-def server_msg(reader):
+def server_adurl(reader):
     request = net.receive(reader)[0]
     if len(request) > 0:
-        print(json.loads(request.decode()))       # 전송 결과
+        request = json.loads(request.decode())
+        url = request['url']                   # url 주소
+        filename = request['ad_file']
+
+        file_dir = f'C:/iot_workspace/project/input/video/ad_video/{filename}'
+      
+        if path.isfile(file_dir) == True:
+          Video.video_play(file_dir)
+        else:
+          Video.connect_url(url, filename)                  # url 접속 후 영상 다운로드
+          print('video start')
+          Video.video_play(file_dir)                        # file 실행
 
 def camera(ip, port):
   start_time = time.time()    # 시작 시간
   need_second = 2
   print(ip, port)
+  dataset = []
+  location = '도곡동-1'
   with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((ip, port))
-
     writer = s.makefile('wb')
     reader = s.makefile('rb')
     with Video(device = 0) as v:    # 카메라 번호 지정
     # with Video(file = 'test_people.jpg') as v:    # 카메라 번호 지정
-      middle_time = time.time()
-      check = middle_time - start_time    # 사전 작업시간
       num_detections, image_data = 0, []
-      for i in range(5):
+      for i in range(4):
         v.cap.read()
+      middle_time = time.time()
+      image = v
       for image in v:
-        Video.show(image)                       # 영상 스트리밍
+        Video.show(image)                       # 영상 스트리밍   - 추후 제거
         num_detection = detect_face(image)      # 검출 인원 수 체크
         print(num_detection)
         if time.time() - middle_time > need_second:
@@ -69,17 +83,23 @@ def camera(ip, port):
         if num_detection > num_detections:
           num_detections = num_detection        # 최대로 인원 수 갱신
           image_data = Video.to_jpg(image)   # jpg파일 압축
-          print(type(image_data))
+      
+
       if len(image_data) == 0:                    # 이미지가 없으면
         print('no data')
       else:
+        # dataset.append(image_data, location)
         print("Number of faces detected: ", num_detections)
         net.send(writer, image_data)            # 서버로 데이터 전송
-        print('video send ', len(image_data), '/', 'people :', num_detections)
-        server_msg(reader)
+        send_time = time.time()    # 전송 끝나는 시간
 
-    end_time = time.time()    # 끝나는 시간
-    print('사전 작업시간 :', check)
+        print('img send ', len(image_data), '/', 'people :', num_detections)
+        print('전송 작업시간 :', send_time - start_time)
+
+        server_adurl(reader)                    # URL 수신
+    cv2.destroyAllWindows()
+
+    end_time = time.time()    # 전송 끝나는 시간
     print('전체 시간 : ', end_time - start_time)
 
 # if __name__ == '__main__':
