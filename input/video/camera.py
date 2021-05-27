@@ -88,7 +88,11 @@ def camera(ip, port):
       if len(image_data) == 0:                    # 이미지가 없으면
         print('no data')
       else:
+<<<<<<< HEAD
         # dataset.append(image_data, location)
+=======
+        dataset.append(image_data, location)
+>>>>>>> 7dc0e44dce353a65499946cb5ce066c90dcc657b
         print("Number of faces detected: ", num_detections)
         net.send(writer, image_data)            # 서버로 데이터 전송
         send_time = time.time()    # 전송 끝나는 시간
