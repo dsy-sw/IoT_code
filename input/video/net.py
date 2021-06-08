@@ -16,7 +16,15 @@ def server(ip, port, thread):
       print(e)
     except KeyboardInterrupt:
         print('수동 종료')
+
 def send(writer, data):
+  writer.write(struct.pack('<L', len(data)))
+  writer.write(data)
+
+  writer.flush()
+
+def send_str(writer, data):
+  data = data.encode('cp949')
   writer.write(struct.pack('<L', len(data)))
   writer.write(data)
   writer.flush()
@@ -30,3 +38,13 @@ def receive(reader):
   data = reader.read(data_len)
 
   return (data, data_len)
+
+def receive_str(reader):
+  str = reader.read(struct.calcsize('<L'))
+  str_len = struct.unpack('<L', str)[0]
+
+  if not str_len:
+    return (None, 0)
+  str = reader.read(str_len)
+
+  return str

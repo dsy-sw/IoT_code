@@ -1,20 +1,21 @@
 #include <MqttCom.h>
 #include <Sensor.h>
+#include <arduino.h>
 
 
-const char *ssid = "dsy_msi";
-const char *password = "1q2w3e4r";
-const char *server =  "192.168.137.36";
+const char *ssid = "TECH2_2G";
+const char *password = "tech21234!";
+const char *server =  "172.30.1.8";
 // const char *ssid = "DO";
 // const char *password = "ehtldud123";
 // const char *server =  "192.168.0.10";
 const char *pub_topic = "input/sensor";
 
 MqttCom com(ssid, password);
-Sensor sensor(D6);
+Sensor sensor(D7);
 
 void publishWorking() {
-  com.publish("input/lift/work", "working on");
+  com.publish("input/sensor/work", "working on");
 }
 
 ICACHE_RAM_ATTR void publish_sensor(){
@@ -33,5 +34,5 @@ void setup()
 void loop()
 {
   com.run();
-  sensor.run(publish_sensor, 3000);
+  sensor.check(3000);
 }

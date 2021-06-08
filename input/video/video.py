@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import urllib.request
+import subprocess as sp
 
 class Video:
   def __init__(self, **kargs):
@@ -60,29 +61,29 @@ class Video:
     # chrome_path = 'C:/Program Files/Google/Chrome/Application/chrome.exe %s'
     # Linux
     # chrome_path = '/usr/bin/google-chrome %s'
-    directory = f'C:/iot_workspace/project/input/video/ad_video/{filename}'
+    directory = f'/home/pi/iot_workspace/project/output/ad_video/{filename}'
     print(directory)
     print(filename)
     urllib.request.urlretrieve(url, directory)
     print(' 광고 저장 완료 ')
-    # webbrowser.get(chrome_path).open(url, new=1, autoraise=False)
     return True
   
+  # @staticmethod
+  # def video_play(filename):
+  #   cap = cv2.VideoCapture(filename)
+  #   print('video play')
+  #   while cap.isOpened():
+  #     ret, frame = cap.read()
+  #     if not ret:
+  #       print("Don't find ad_file")
+  #       break
+  #     cv2.imshow(f'{filename}', frame)
+  #     if cv2.waitKey(42) == ord('q'):
+  #       break
+
   @staticmethod
   def video_play(filename):
-    cap = cv2.VideoCapture(filename)
-    print('video play')
-    while cap.isOpened():
-      ret, frame = cap.read()
-      if not ret:
-        print("Don't find ad_file")
-        break
-      cv2.imshow(f'{filename}', frame)
-      if cv2.waitKey(42) == ord('q'):
-        break
-    
-    cap.release()
-    cv2.destroyAllWindows()
+    sp.run(['cvlc', filename])
     print('finish video')
 
 

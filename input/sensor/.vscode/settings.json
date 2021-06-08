@@ -2,6 +2,21 @@
   "files.associations": {
     "*.json": "json",
     "xstring": "cpp",
-    "string": "cpp"
+    "string": "cpp",
+    "fstream": "cpp",
+    "iomanip": "cpp",
+    "istream": "cpp",
+    "list": "cpp",
+    "ostream": "cpp",
+    "random": "cpp",
+    "sstream": "cpp",
+    "xhash": "cpp",
+    "xiosbase": "cpp",
+    "xlocale": "cpp",
+    "xlocbuf": "cpp",
+    "*.rh": "cpp",
+    "*.tcc": "cpp",
+    "functional": "cpp",
+    "streambuf": "cpp"
   }
 }

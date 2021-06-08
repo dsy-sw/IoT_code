@@ -1,3 +1,4 @@
+
 import net
 import json
 import numpy as np
@@ -15,8 +16,8 @@ import base64
 from io import BytesIO
 
 # HOST = '172.30.1.55'
-HOST = '15.161.17.179'
-PORT = 22
+HOST = '172.31.25.76'
+PORT = 5001
 
 ix = 0
 
@@ -29,11 +30,9 @@ def receiver(client, addr):
       print('no data')
     print('received', data_len)   # 이미지 처리
     # print(location)
-    # save_image(data)
-    save_image(data)
-    ai(data)
-    result = json.dumps({'result':'ok'})
-    net.send(writer, result.encode())
+    data = np.frombuffer(data, dtype=np.uint8)
+    data = cv2.imdecode(data, cv2.IMREAD_COLOR)
+    ai(data, writer)
   except Exception as e:
     print('Error :', e)
 
@@ -45,14 +44,6 @@ def show_image(data):
   image = cv2.imdecode(data, cv2.IMREAD_COLOR)
   cv2.imshow('frame', image)
   cv2.waitKey(1)
-
-def save_image(img):
-  global ix
-  data = np.frombuffer(img, dtype=np.uint8)
-  image=cv2.imdecode(data, cv2.IMREAD_COLOR)
-  # cv2.imwrite(f'/home/ubuntu/iot/save_img/face_{ix:04d}.jpg', image, [cv2.IMWRITE_JPEG_QUALITY, 90])
-  cv2.imwrite(f'C:/iot_workspace/project/input/video\save_img/face_{ix:04d}.jpg', image, [cv2.IMWRITE_JPEG_QUALITY, 100])
-  ix += 1
 
 def face_crop(IoT_Input):
     detector = MTCNN()
@@ -100,53 +91,92 @@ def predict_models(model_age, model_gender,cropped_image):
     else:
         age_result = 'silver'
 
-    if age_result == 'kids' or age_result == 'silver':
-        return age_result, -1
+    gender = model_gender.predict(cropped_image)  # 0 남자 1 여자
+    if gender[0][0] > 0.5:
+        gender_result = 'woman'
     else:
-        gender = model_gender.predict(cropped_image)  # 0 남자 1 여자
-        if gender[0][0] > 0.5:
-            gender_result = 'woman'
-        else:
-            gender_result = 'man'
-        return age_result, gender_result
+        gender_result = 'man'
+    return age_result, gender_result
 
 def select_AD(count_list):  # [kids, 2030M, 2030W, 4050M, 4050W, silver]
+    conn = pymysql.connect(host='yangjae-team08-database.ca8iiefanafw.eu-south-1.rds.amazonaws.com',
+                           port=3306, user='admin', password='yangjae8', db='mydb', charset='utf8')
+    cur = conn.cursor()
+
     max_index = []
     count_max = max(count_list)
+    ad_id_list = []
+    CPM_list = []
+    NULL_ad_id = []
+    max_ad_id = []
+
     for i, n in enumerate(count_list):
         if n == count_max:
             max_index.append(i)
-    selected_index = random.choice(max_index)
 
-    if selected_index == 0:
-        return 'kids', '-1'
-    elif selected_index == 1:
-        return '2030', '남자'
-    elif selected_index == 1:
-        return '2030', '여자'
-    elif selected_index == 1:
-        return '4050', '남자'
-    elif selected_index == 1:
-        return '4050', '여자'
+    for i in max_index:
+        if i == 0:
+            ad_id_list.append(4)
+        elif i == 1:
+            ad_id_list.append(1)
+        elif i == 2:
+            ad_id_list.append(3)
+        elif i == 3:
+            ad_id_list.append(2)
+        elif i == 4:
+            ad_id_list.append(5)
+        else:
+            ad_id_list.append(6)
+
+    sql_CPM = '''SELECT ROUND(sub.cost / sub.cnt * 1000, 2) AS CPM
+                FROM (SELECT ad.ad_id, ad.budget / ad.period AS cost, COUNT(t.ad_id) AS cnt
+                    FROM advert ad LEFT JOIN target t 
+                    ON ad.ad_id = t.ad_id
+                    GROUP BY ad.ad_id, t.ad_id) sub
+                WHERE sub.ad_id = %s
+                GROUP BY sub.ad_id'''
+
+    for id in ad_id_list:
+        cur.execute(sql_CPM, id)
+        cpm = cur.fetchone()
+        CPM_list.append(cpm)
+
+    for i in range(len(CPM_list)):
+        if CPM_list[i] == 'NULL':
+            NULL_ad_id.append(CPM_list[i])
+
+    if len(NULL_ad_id) == 0:
+        temp_id = []
+        for i in range(len(CPM_list)):
+            if CPM_list[i] == max(CPM_list):
+                temp_id.append(ad_id_list[i])
+        if len(temp_id) == 1:
+            return temp_id[0]
+        else:
+            selected_id = random.choice(temp_id)
+            return selected_id
+    elif len(NULL_ad_id) == 1:
+        return ad_id_list[0]
     else:
-        return 'silver', '-1'
+        selected_id = random.choice(NULL_ad_id)
+        return selected_id
 
-def ai(data):
+def ai(data, writer):
     count_list = [0, 0, 0, 0, 0, 0]
     conn = pymysql.connect(host='yangjae-team08-database.ca8iiefanafw.eu-south-1.rds.amazonaws.com',
                          port=3306, user='admin', password='yangjae8', db='mydb', charset='utf8')
     cur = conn.cursor()
-
     tm = time.localtime((time.time()))
     data_date = f'{tm.tm_year}_{tm.tm_mon}_{tm.tm_mday}_{tm.tm_min}_{tm.tm_sec}'
+    faces_list = [] 
     faces_list = face_crop(data)
     model_age, model_gender = load_models()
+    print('detected' + str(len(faces_list)))
     cam_location = 'Seoul'
 
     temp_age = []
     temp_gender = []
     temp_crop = []
-
     for i, face in enumerate(faces_list):
         buffer = BytesIO()
         age_result, gender_result = predict_models(model_age, model_gender, face)
@@ -172,17 +202,19 @@ def ai(data):
         temp_age.append(age_result)
         temp_gender.append(gender_result)
         temp_crop.append(face_byte)
+    selected_id = select_AD(count_list)
 
-    selected_age, selected_gender = select_AD(count_list)
+    sql_select_AD = f'SELECT ad_id, ad_name, budget FROM advert WHERE ad_id = "{selected_id}"'
+    cur.execute(sql_select_AD)
+    ad_id, ad_name, budget = cur.fetchone()
+    print('url')
+    IoT_ad_url = f'https://yangjae-team08-bucket.s3.eu-south-1.amazonaws.com/{ad_name}.mp4'
+    IoT_ad_url = IoT_ad_url.replace(' ', '+')
+    IoT_ad_name = ad_name + '.mp4'
+    IoT_ad_name = IoT_ad_name.replace(' ',  '_')
 
-    if selected_age == 'kids' or selected_age == 'silver':
-        sql_select_AD = f'SELECT ad_id, ad_name, budget FROM advert WHERE target_age = "{selected_age}"'
-        cur.execute(sql_select_AD)
-        ad_id, ad_name, budget = cur.fetchone()
-    else:
-        sql_select_AD = f'SELECT ad_id, ad_name, budget FROM advert WHERE target_age = "{selected_age}" AND target_gender = "{selected_gender}"'
-        cur.execute(sql_select_AD)
-        ad_id, ad_name, budget = cur.fetchone()
+    result = json.dumps({'url': IoT_ad_url, 'ad_file': IoT_ad_name})
+    net.send(writer, result.encode())
 
     for crop, age, gender in zip(temp_crop, temp_age, temp_gender):
         # INSERT face Table
@@ -201,7 +233,7 @@ def ai(data):
                 VALUES(%s, %s, %s, %s)'''
         cur.execute(sql_target, [face_id, ad_id, age, gender])
         conn.commit()
-
+        
 if __name__ == '__main__':
   print('start server...')
   net.server(HOST, PORT, receiver)

@@ -1,14 +1,15 @@
+import threading
 from _thread import *
 import paho.mqtt.client as mqtt 
-from camera import camera
+from camera import camera, state, set_state, get_state
 
 SERVER_HOST = '15.161.17.179'
 # SERVER_HOST = '192.168.1.47'
-BROKER_HOST = '172.30.1.9'
+BROKER_HOST = '172.30.1.70'
 PORT = 5001
+
 door_topic='input/#'
 
-state = False
 
 # 브로커 접속 시도 결과 처리 콜백 함수
 def on_connect(client, userdata, flags, rc):
@@ -22,19 +23,16 @@ def on_connect(client, userdata, flags, rc):
 # 관련 토픽 메세지 수신 콜백 함수
 def on_message(client, userdata, msg):
     global state
+    print(state)
     print(msg.topic+" "+str(msg.payload))
-
-    if msg.payload == b'on':
-        if state == True: # 작업중
+    if msg.payload == b'detected':
+        if get_state() == True: # 작업중
+            print('카메라 작동중')
             pass
         else: # 대기상태
-            state = True
+            set_state(True)
             start_new_thread(camera, (SERVER_HOST, PORT))
-            state = False
-            
 
-    if msg.payload == b'request':
-        threading.Thread(target = output, arg = (msg.payload))
 
 def input():
     print('start sub...')
@@ -57,9 +55,6 @@ def input():
     except KeyboardInterrupt:
         print('수동 종료')
 
-def output(request):
-    resuelt = request
-    # if 
 
 if __name__ == '__main__':
     # t_input = threading.Thread(target=input)
