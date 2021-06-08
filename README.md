@@ -12,8 +12,8 @@ AWS EC2에서 전처리된 데이터를 기반으로 Key와 ID를 Broker에게 �
 
 - Language : Python, C++
 - IDE : VScode
-- Library : openCV / Socket / MQTT / Json / Samba 
-- Tool : VNC viwer / Puttry / Bitvise SSH
+- Library : openCV / Socket / MQTT / Json
+- Tool : VNC viewer / Puttry / Bitvise SSH / samba / Anaconda
 
 
 
