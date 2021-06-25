@@ -58,3 +58,6 @@ AWS EC2에서 전처리된 데이터를 기반으로 Key와 ID를 Broker에게 �
 
 ![image-20210602160215706](README.assets/image-20210602160215706.png)
 =======
+
+![AD_Flowchart-IoT](README.assets/AD_Flowchart-IoT.png)
+
